@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8"/>
+    <title>
+        Hướng dẫn xây dựng ứng dụng Todo List bằng HTML, CSS và JavaScript
+    </title>
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-okaidia.min.css"
+    />
+</head>
+<body>
+<h1>Hướng dẫn xây dựng ứng dụng Todo List bằng HTML, CSS và JavaScript</h1>
+<p>
+    Todo List là một dự án nhỏ nhưng rất hữu ích cho người mới học lập trình
+    web. Thông qua dự án này, bạn sẽ thực hành cách xây dựng giao diện bằng
+    HTML, tạo kiểu bằng CSS và sử dụng JavaScript để xử lý tương tác với người
+    dùng.
+</p>
+<p>
+    Trong bài viết này, chúng ta sẽ xây dựng một ứng dụng Todo List có ba chức
+    năng cơ bản: thêm công việc mới, hiển thị danh sách công việc và xóa công
+    việc đã hoàn thành hoặc không còn cần thiết. Ứng dụng không sử dụng thư
+    viện bên ngoài, giúp bạn tập trung vào các kiến thức nền tảng của web
+    development.
+</p>
+
+<h2>1. Chuẩn bị cấu trúc dự án</h2>
+<p>
+    Trước tiên, hãy tạo một thư mục có tên todo-list. Bên trong thư mục này,
+    chúng ta sẽ tạo ba tệp riêng biệt để quản lý cấu trúc HTML, giao diện CSS
+    và logic JavaScript.
+</p>
+<pre>
+    todo-list/
+    ├── index.html
+    ├── style.css
+    └── script.js
+    </pre>
+<p>
+    Việc tách HTML, CSS và JavaScript thành các tệp riêng biệt giúp mã nguồn
+    dễ đọc, dễ bảo trì và thuận tiện khi mở rộng ứng dụng trong tương lai.
+</p>
+
+<h2>2. Xây dựng cấu trúc HTML</h2>
+<p>
+    HTML chịu trách nhiệm xác định cấu trúc và nội dung của ứng dụng. Trong
+    bước này, chúng ta sẽ tạo tiêu đề, ô nhập công việc, nút thêm và khu vực
+    hiển thị danh sách công việc.
+</p>
+<p>Tạo tệp <code>index.html</code> với nội dung sau:</p>
+<pre>
+    <code class="language-html">
+    &lt;!DOCTYPE html&gt;
+    &lt;html lang=&quot;vi&quot;&gt;
+    &lt;head&gt;
+        &lt;meta charset=&quot;UTF-8&quot;&gt;
+        &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+        &lt;title&gt;Todo List&lt;/title&gt;
+        &lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot;&gt;
+        &lt;script src=&quot;script.js&quot; defer&gt;&lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;main class=&quot;todo&quot;&gt;
+            &lt;h1 class=&quot;todo__title&quot;&gt;Todo List&lt;/h1&gt;
+
+            &lt;form class=&quot;todo__form&quot; id=&quot;todo-form&quot;&gt;
+                &lt;label class=&quot;todo__label&quot; for=&quot;todo-input&quot;&gt;
+                    Công việc mới
+                &lt;/label&gt;
+
+                &lt;div class=&quot;todo__controls&quot;&gt;
+                    &lt;input
+                        class=&quot;todo__input&quot;
+                        id=&quot;todo-input&quot;
+                        type=&quot;text&quot;
+                        placeholder=&quot;Nhập công việc...&quot;
+                        autocomplete=&quot;off&quot;
+                    &gt;
+
+                    &lt;button class=&quot;todo__add-button&quot; type=&quot;submit&quot;&gt;
+                        Thêm
+                    &lt;/button&gt;
+                &lt;/div&gt;
+            &lt;/form&gt;
+
+            &lt;ul class=&quot;todo__list&quot; id=&quot;todo-list&quot;&gt;&lt;/ul&gt;
+        &lt;/main&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;
+    </code>
+    </pre>
+<p>
+    Trong đoạn mã trên, thẻ main chứa toàn bộ ứng dụng, còn form quản lý thao
+    tác nhập và gửi công việc. Thuộc tính for của label liên kết với id của ô
+    nhập, giúp người dùng dễ xác định trường dữ liệu cần điền.
+</p>
+<p>
+    Danh sách công việc sử dụng thẻ ul, sẵn sàng nhận các phần tử li được tạo
+    bằng JavaScript. Thuộc tính defer đảm bảo trình duyệt thực thi tệp
+    JavaScript sau khi phân tích HTML, giúp các phần tử cần thiết đã tồn tại
+    khi mã bắt đầu chạy.
+</p>
+
+<h2>3. Thiết kế giao diện bằng CSS</h2>
+<p>
+    Sau khi hoàn thành cấu trúc HTML, chúng ta sẽ sử dụng CSS để tạo giao diện
+    gọn gàng, dễ sử dụng. Ứng dụng sẽ có nền màu xám nhạt, một khung nội dung
+    màu trắng và các nút có màu sắc rõ ràng.
+</p>
+<p>Mở tệp <code>style.css</code> và thêm đoạn mã sau:</p>
+<pre>
+    <code class="language-css">
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 40px 16px;
+        background-color: #f3f4f6;
+        color: #1f2937;
+        font-family: Arial, sans-serif;
+    }
+
+    .todo {
+        width: 100%;
+        max-width: 520px;
+        margin: 0 auto;
+        padding: 24px;
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
+    }
+
+    .todo__title {
+        margin: 0 0 24px;
+        text-align: center;
+    }
+
+    .todo__label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .todo__controls {
+        display: flex;
+        gap: 8px;
+    }
+
+    .todo__input {
+        flex: 1;
+        min-width: 0;
+        padding: 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font: inherit;
+    }
+
+    .todo__input:focus {
+        outline: 2px solid #93c5fd;
+        outline-offset: 1px;
+    }
+
+    .todo__add-button,
+    .todo__delete-button {
+        padding: 12px 16px;
+        border: 0;
+        border-radius: 6px;
+        color: #ffffff;
+        font: inherit;
+        cursor: pointer;
+    }
+
+    .todo__add-button {
+        background-color: #2563eb;
+    }
+
+    .todo__add-button:hover {
+        background-color: #1d4ed8;
+    }
+
+    .todo__list {
+        display: grid;
+        gap: 10px;
+        margin: 24px 0 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .todo__item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        overflow-wrap: anywhere;
+    }
+
+    .todo__item-text {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .todo__delete-button {
+        flex-shrink: 0;
+        background-color: #dc2626;
+    }
+
+    .todo__delete-button:hover {
+        background-color: #b91c1c;
+    }
+
+    @media (max-width: 480px) {
+        .todo {
+            padding: 18px;
+        }
+
+        .todo__controls {
+            flex-direction: column;
+        }
+    }
+        </code>
+        </pre>
+<p>
+    Đoạn CSS sử dụng <code>max-width</code> để giới hạn chiều rộng ứng dụng và
+    margin: 0 auto để căn giữa khung nội dung. Thuộc tính
+    <code>box-sizing: border-box</code> giúp việc tính toán kích thước phần tử
+    nhất quán hơn.
+</p>
+<p>
+    Các class như <code>todo__title</code>, <code>todo__input</code> và
+    <code>todo__delete-button</code> tuân theo cách đặt tên BEM ở mức cơ bản.
+    Media query giúp giao diện thích nghi với màn hình nhỏ, trong khi các
+    trạng thái <code>:hover</code> và <code>:focus</code> hỗ trợ khả năng
+    tương tác.
+</p>
+
+<h2>4. Lấy các phần tử HTML bằng JavaScript</h2>
+<p>
+    Bây giờ, chúng ta sẽ bắt đầu xây dựng logic của ứng dụng. Trước tiên,
+    JavaScript cần tham chiếu đến form, ô nhập liệu và danh sách công việc để
+    có thể xử lý sự kiện và cập nhật giao diện.
+</p>
+<p>Mở tệp <code>script.js</code> và thêm đoạn mã sau:</p>
+<pre>
+    <code class="language-js">
+    const todoForm = document.querySelector("#todo-form");
+    const todoInput = document.querySelector("#todo-input");
+    const todoList = document.querySelector("#todo-list");
+    </code>
+    </pre>
+<p>
+    Phương thức <code>document.querySelector()</code> tìm phần tử đầu tiên
+    khớp với CSS selector được cung cấp. Trong trường hợp này, chúng ta sử
+    dụng các selector theo id để lấy đúng phần tử HTML cần thao tác.
+</p>
+<p>
+    Các biến được khai báo bằng const vì chúng ta không cần gán lại những biến
+    tham chiếu này sang phần tử khác. Tuy nhiên, các phần tử DOM mà chúng tham
+    chiếu vẫn có thể được cập nhật nội dung và thay đổi trong quá trình chạy
+    ứng dụng.
+</p>
+
+<h2>5. Tạo chức năng hiển thị danh sách công việc</h2>
+<p>
+    Để quản lý dữ liệu, chúng ta sẽ sử dụng một mảng JavaScript có tên todos.
+    Mỗi công việc được lưu dưới dạng một object gồm mã định danh id và nội
+    dung text.
+</p>
+<p>
+    Trước khi xử lý thao tác thêm và xóa, hãy xây dựng hàm
+    <code>renderTodos()</code> để hiển thị toàn bộ dữ liệu hiện có lên giao
+    diện.
+</p>
+<p>
+    Thêm đoạn mã sau vào <code>script.js</code>, bên dưới phần khai báo biến:
+</p>
+<pre>
+    <code class="language-js">
+    let todos = [];
+
+    function renderTodos() {
+        todoList.replaceChildren();
+
+        todos.forEach(function (todo) {
+            const listItem = document.createElement("li");
+            const todoText = document.createElement("span");
+
+            listItem.classList.add("todo__item");
+            todoText.classList.add("todo__item-text");
+
+            todoText.textContent = todo.text;
+
+            listItem.append(todoText);
+            todoList.append(listItem);
+        });
+    }
+    </code>
+    </pre>
+<p>
+    Mảng todos ban đầu rỗng nên danh sách chưa có công việc nào. Khi gọi
+    <code>renderTodos()</code>, phương thức <code>replaceChildren()</code> xóa
+    các phần tử con hiện có trong danh sách, sau đó vòng lặp
+    <code>forEach()</code> duyệt qua từng công việc và tạo một phần tử li
+    tương ứng.
+</p>
+<p>
+    Chúng ta sử dụng <code>document.createElement()</code> để tạo các phần tử
+    HTML và textContent để đưa nội dung công việc vào giao diện. Cách này an
+    toàn hơn việc ghép chuỗi người dùng nhập vào innerHTML, vì nội dung được
+    xử lý dưới dạng văn bản thay vì HTML có thể thực thi.
+</p>
+
+<h2>6. Xây dựng chức năng thêm công việc</h2>
+<p>
+    Sau khi có hàm hiển thị danh sách, chúng ta sẽ xử lý thao tác gửi form.
+    Khi người dùng nhập nội dung và nhấn nút Thêm, ứng dụng cần ngăn form tải
+    lại trang, kiểm tra dữ liệu và thêm công việc mới vào mảng todos.
+</p>
+<p>Thêm đoạn mã sau vào cuối tệp <code>script.js</code>:</p>
+<pre>
+    <code class="language-js">
+    todoForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const text = todoInput.value.trim();
+
+        if (text === "") {
+            todoInput.focus();
+            return;
+        }
+
+        const todo = {
+            id: crypto.randomUUID(),
+            text: text
+        };
+
+        todos.push(todo);
+
+        renderTodos();
+
+        todoInput.value = "";
+        todoInput.focus();
+    });
+    </code>
+    </pre>
+<p>
+    Phương thức <code>addEventListener()</code> lắng nghe sự kiện submit của
+    form. Lệnh <code>event.preventDefault()</code> ngăn trình duyệt gửi form
+    theo cách mặc định, tránh việc trang bị tải lại sau khi người dùng nhấn
+    nút.
+</p>
+<p>
+    Phương thức <code>trim()</code> loại bỏ khoảng trắng ở đầu và cuối chuỗi.
+    Nếu nội dung rỗng, hàm sẽ dừng lại mà không thêm công việc. Nếu dữ liệu
+    hợp lệ, ứng dụng tạo một object có mã định danh duy nhất bằng
+    <code>crypto.randomUUID()</code>, thêm object vào mảng bằng
+    <code>push()</code> rồi gọi <code>renderTodos()</code> để cập nhật giao
+    diện.
+</p>
+<p>
+    Cuối cùng, ô nhập được làm trống để người dùng có thể nhập công việc tiếp
+    theo. Việc đưa con trỏ trở lại ô nhập cũng giúp thao tác thêm nhiều công
+    việc trở nên thuận tiện hơn.
+</p>
+
+<h2>7. Xây dựng chức năng xóa công việc</h2>
+<p>
+    Ở bước trước, ứng dụng đã có thể thêm và hiển thị công việc. Tiếp theo,
+    chúng ta sẽ thêm nút Xóa bên cạnh từng mục trong danh sách. Khi nút được
+    nhấn, ứng dụng sẽ tìm công việc tương ứng theo id, loại bỏ công việc đó
+    khỏi mảng và hiển thị lại danh sách.
+</p>
+<p>
+    Thay thế toàn bộ hàm <code>renderTodos()</code> trong
+    <code>script.js</code> bằng phiên bản sau:
+</p>
+<pre>
+    <code class="language-js">
+    function renderTodos() {
+        todoList.replaceChildren();
+
+        todos.forEach(function (todo) {
+            const listItem = document.createElement("li");
+            const todoText = document.createElement("span");
+            const deleteButton = document.createElement("button");
+
+            listItem.classList.add("todo__item");
+            todoText.classList.add("todo__item-text");
+            deleteButton.classList.add("todo__delete-button");
+
+            todoText.textContent = todo.text;
+
+            deleteButton.type = "button";
+            deleteButton.textContent = "Xóa";
+            deleteButton.setAttribute(
+                "aria-label",
+                `Xóa công việc: ${todo.text}`
+            );
+
+            deleteButton.addEventListener("click", function () {
+                todos = todos.filter(function (item) {
+                    return item.id !== todo.id;
+                });
+
+                renderTodos();
+            });
+
+            listItem.append(todoText, deleteButton);
+            todoList.append(listItem);
+        });
+    }
+    </code>
+    </pre>
+<p>
+    Mỗi công việc giờ đây có thêm một nút Xóa. Khi người dùng nhấn nút, phương
+    thức <code>filter()</code> tạo một mảng mới chỉ chứa những công việc có id
+    khác với công việc cần xóa. Sau đó, <code>renderTodos()</code> được gọi để
+    đồng bộ giao diện với dữ liệu mới.
+</p>
+<p>
+    Chúng ta dùng id thay vì dựa vào vị trí của công việc trong mảng. Điều này
+    giúp thao tác xóa rõ ràng hơn và không bị phụ thuộc vào thứ tự các phần
+    tử. Thuộc tính <code>aria-label</code> cung cấp tên mô tả cho nút, hỗ trợ
+    người dùng sử dụng công nghệ đọc màn hình.
+</p>
+<h2>8. Hoàn thiện và kiểm tra ứng dụng</h2>
+<p>
+    Đến đây, ứng dụng đã có đủ ba chức năng chính: thêm công việc, hiển thị
+    danh sách và xóa công việc. Hãy kiểm tra lại toàn bộ mã nguồn để chắc chắn
+    các phần được đặt đúng tệp và không bị trùng lặp hàm.
+</p>
+<p>Cấu trúc cuối cùng vẫn gồm ba tệp:</p>
+<pre>
+    todo-list/
+    ├── index.html
+    ├── style.css
+    └── script.js
+    </pre
+    >
+<p>
+    Mở <code>index.html</code> trực tiếp bằng trình duyệt hoặc sử dụng tiện
+    ích chạy máy chủ phát triển cục bộ trong trình soạn thảo. Sau đó, thử nhập
+    một công việc, thêm nhiều công việc liên tiếp và xóa từng mục để kiểm tra
+    kết quả.
+</p>
+<p>
+    Một số trường hợp cần kiểm tra gồm nhập nội dung bình thường, chỉ nhập
+    khoảng trắng, xóa công việc đầu tiên hoặc cuối cùng và nhập nội dung có ký
+    tự đặc biệt. Những thử nghiệm này giúp bạn xác nhận rằng ứng dụng xử lý
+    đúng dữ liệu và cập nhật giao diện như mong đợi.
+</p>
+<h2>9. Tổng kết</h2>
+<p>
+    Qua dự án Todo List, bạn đã thực hành cách xây dựng cấu trúc trang bằng
+    HTML, tổ chức giao diện bằng CSS và xử lý tương tác với JavaScript. Bạn
+    cũng đã làm quen với những kiến thức quan trọng như biến, mảng, object,
+    vòng lặp, sự kiện DOM và các phương thức <code>push()</code>,
+    <code>filter()</code>.
+</p>
+<p>
+    Điểm quan trọng cần ghi nhớ là dữ liệu và giao diện có vai trò khác nhau.
+    Mảng todos lưu trữ danh sách công việc trong bộ nhớ, còn hàm
+    <code>renderTodos()</code>
+    chịu trách nhiệm thể hiện dữ liệu đó trên trang. Khi dữ liệu thay đổi,
+    việc gọi lại hàm render giúp giao diện phản ánh trạng thái mới.
+</p>
+<p>
+    Ứng dụng hiện chưa lưu dữ liệu sau khi tải lại trang. Đây là giới hạn có
+    chủ đích để tập trung vào ba chức năng cơ bản. Sau khi hiểu rõ cách hoạt
+    động của phiên bản này, bạn có thể mở rộng dự án bằng localStorage, chức
+    năng đánh dấu hoàn thành, chỉnh sửa công việc hoặc lọc danh sách theo
+    trạng thái.
+</p>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body>
+</html>
